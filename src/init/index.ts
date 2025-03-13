@@ -1,1 +1,1 @@
-import './env.js';
+import '@root/src/init/env.js';

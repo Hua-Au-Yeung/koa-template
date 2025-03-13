@@ -1,15 +1,14 @@
+import { DateTime } from 'luxon';
 import path from 'path';
 import { env } from 'process';
 import winston from 'winston';
 import { createLogger, format, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import SentryTransport from 'winston-transport-sentry-node';
-import { DateTime } from 'luxon';
 
 const { combine, timestamp, json, errors } = format;
 const LOG_DIR = `${path.resolve()}/log`;
 
-// logger.info('xxx', {file: 'biz'});
 const logFileFormatFactory = (logFileName: string) => {
     return format((transInfo, opts) => {
         return transInfo.file !== undefined && transInfo.file === logFileName ? transInfo : false;
@@ -66,7 +65,6 @@ if (env.SENTRY === 'true' && env.NODE_ENV === 'production' && env.DEBUG !== 'tru
             level: env.SENTRY_LOG_LEVEL,
             format: winston.format((info) => {
                 info.tags = { NODE_ID: env.NODE_ID };
-                // info.extra = { Request_Id: info.requestId }; // 其实花括号里的都会进入 Additional Data，包括 extra
                 return info;
             })(),
         }),

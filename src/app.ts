@@ -1,16 +1,16 @@
-import './init';
+import '@root/src/init';
 import Router from '@koa/router';
+import { httpBaseAuth } from '@root/src/middleware/http-base-auth.js';
+import { httpInit } from '@root/src/middleware/http-init.js';
+import { httpLog } from '@root/src/middleware/http-log.js';
+import { logger } from '@root/src/module/logger.js';
+import { index as indexRouter } from '@root/src/router/index.js';
+import { ping as pingRouter } from '@root/src/router/ping.js';
 import fs from 'fs';
 import https from 'https';
 import Koa, { ParameterizedContext } from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { env } from 'process';
-import { httpBaseAuth } from './middleware/http-base-auth.js';
-import { httpInit } from './middleware/http-init.js';
-import { httpLog } from './middleware/http-log.js';
-import { logger } from './module/logger.js';
-import { index as indexRouter } from './router/index.js';
-import { ping as pingRouter } from './router/ping.js';
 
 const hostname = env.HOST as string;
 const port = parseInt(env.PORT as string);
@@ -40,7 +40,7 @@ const router = new Router();
             });
         });
 
-    if (env.SSL == 'true') {
+    if (env.SSL === 'true') {
         const options = {
             key: fs.readFileSync(env.SSL_KEY as string),
             cert: fs.readFileSync(env.SSL_CERT as string),
