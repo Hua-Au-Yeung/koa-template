@@ -3,7 +3,7 @@ import auth from 'koa-basic-auth';
 import { env } from 'process';
 
 export const httpBaseAuth = (credentials: { name: string; pass: string; }) => {
-    return async (ctx: ParameterizedContext, next: Next) => {
+    return async (ctx: ParameterizedContext<MYState, MYContext>, next: Next) => {
         try {
             await auth(credentials)(ctx, next);
         } catch (err) {
