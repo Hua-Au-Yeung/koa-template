@@ -7,9 +7,9 @@ import DailyRotateFile from 'winston-daily-rotate-file';
 import SentryTransport from 'winston-transport-sentry-node';
 
 const { combine, timestamp, json, errors } = format;
-const LOG_DIR = `${path.resolve()}/log`;
+export const LOG_DIR = `${path.resolve()}/log`;
 
-const logFileFormatFactory = (logFileName: string) => {
+export const logFileFormatFactory = (logFileName: string) => {
     return format((transInfo, opts) => {
         return transInfo.file !== undefined && transInfo.file === logFileName ? transInfo : false;
     });
@@ -53,26 +53,20 @@ export const logger: winston.Logger = createLogger({
             level: 'info',
             format: logFileFormatFactory('http')(),
         }),
+        new DailyRotateFile({
+            filename: `${LOG_DIR}/framework-%DATE%.log`,
+            datePattern: 'YYYY-w',
+            zippedArchive: false,
+            maxSize: '20m',
+            maxFiles: '53',
+            level: 'info',
+            format: logFileFormatFactory('framework')(),
+        }),
     ],
 });
 
-if (env.SENTRY === 'true' && env.NODE_ENV === 'production' && env.DEBUG !== 'true') {
-    logger.add(
-        new SentryTransport.default({
-            sentry: {
-                dsn: env.SENTRY_DSN,
-            },
-            level: env.SENTRY_LOG_LEVEL,
-            format: winston.format((info) => {
-                info.tags = { NODE_ID: env.NODE_ID };
-                return info;
-            })(),
-        }),
-    );
-}
-
 if (env.NODE_ENV !== 'production') {
-    if (env.DEBUG === 'true') {
+    if (JSON.parse(env.DEBUG || 'false')) {
         logger.exceptions.handle(new transports.File({ filename: `${LOG_DIR}/exception.log` }));
         logger.rejections.handle(new transports.File({ filename: `${LOG_DIR}/rejections.log` }));
     }

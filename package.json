@@ -1,14 +1,14 @@
 {
   "name": "koa-template",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "",
-  "main": "dist/app.js",
+  "main": "dist/app/app.js",
   "type": "module",
   "scripts": {
     "test": "pnpm exec tsc --noEmit",
     "build": "pnpm exec tsup",
-    "dev": "NODE_ENV=develop pnpm exec tsx watch ./src/app.ts",
-    "prod": "NODE_ENV=production node ./dist/app.js"
+    "dev": "NODE_ENV=develop pnpm exec tsx watch ./src/app/app.ts",
+    "prod": "NODE_ENV=production node ./dist/app/app.js"
   },
   "keywords": [],
   "author": "Huazai",
