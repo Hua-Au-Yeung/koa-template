@@ -1,5 +1,5 @@
+import { httpBaseAuth } from '@framework/middleware/http-base-auth.js';
 import Router from '@koa/router';
-import { httpBaseAuth } from '@root/src/middleware/http-base-auth.js';
 import { ParameterizedContext } from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { env } from 'process';

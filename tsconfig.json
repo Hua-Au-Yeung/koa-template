@@ -9,19 +9,21 @@
     "forceConsistentCasingInFileNames": true, // case of the file name
     "typeRoots": [
       "./node_modules/@types",
-      "./src/@types"
+      "./src/app/@types",
+      "./src/framework/@types"
     ],
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@root/*": ["./*"] // @root
+      "@root/*": ["./*"],
+      "@framework/*": ["./src/framework/*"],
+      "@app/*": ["./src/app/*"]
     }
   },
   "include": [
-    "./src/**/*",
-    "./src/@types/**/*"
-  ],
-  "files": [
-    "./src/@types/global.d.ts"
+    "./src/**/*"
   ]
+  /*"files": [
+    "./src/@types/global.d.ts"
+  ]*/
 }

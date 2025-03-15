@@ -1,8 +1,8 @@
-import { logger } from '@root/src/module/logger.js';
+import { logger } from '@framework/module/logger.js';
 import crypto from 'crypto';
 import { Next, ParameterizedContext } from 'koa';
 
-export const requestInit = async (ctx: ParameterizedContext<MYState, MYContext>, next: Next) => {
+export const initRequest = async (ctx: ParameterizedContext<_BASEState, _BASEContext>, next: Next) => {
     ctx.state.requestId = crypto.randomBytes(8).toString('hex');
     let logLevel: string;
     switch (ctx.response.status.toString().substring(0, 1)) {
