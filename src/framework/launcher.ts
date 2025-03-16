@@ -29,15 +29,25 @@ class Launcher {
             .use(mainRouter.routes())
             .use(mainRouter.allowedMethods())
             .on('error', (err, ctx: ParameterizedContext<_BASEState, _BASEContext>) => {
-                const logMeta = {
-                    requestId: ctx.state.requestId,
-                    ip: ctx.ip,
-                };
-                if (framework_middlewares.includes(ctx.state.currentMiddleware)) {
-                    // @ts-ignore
-                    logMeta['file'] = 'framework';
+                if (ctx) {
+                    const logMeta = {
+                        requestId: ctx.state.requestId,
+                        ip: ctx.ip,
+                    };
+                    if (framework_middlewares.includes(ctx.state.currentMiddleware)) {
+                        // @ts-ignore
+                        logMeta['file'] = 'framework';
+                    }
+
+                    if (ctx.status < 500) {
+                        logger.warn(`⚠️ Error Event: ${err.toString().trim()}`, logMeta);
+                    } else {
+                        logger.error(`❌ Error Event: ${err.toString().trim()}`, logMeta);
+                    }
+                } else {
+                    // global error or other
+                    logger.error(`‼️ Global ️Error Event: ${err.toString().trim()}`);
                 }
-                logger.error(`❌ Error Event: ${err.toString().trim()}`, logMeta);
             });
 
         // https or http

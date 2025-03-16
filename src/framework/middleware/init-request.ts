@@ -25,6 +25,13 @@ export const initRequest = async (ctx: ParameterizedContext<_BASEState, _BASECon
             if (error.expose) {
                 ctx.body = error.message;
             }
+
+            // 401
+            if (error.status == 401) {
+                ctx.status = 401;
+                ctx.set('WWW-Authenticate', 'Basic realm="Protected Area"');
+                ctx.body = 'Authentication required';
+            }
         } else {
             ctx.status = 500;
             if (JSON.parse(env.DEBUG || 'false')) {
