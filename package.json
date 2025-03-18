@@ -8,7 +8,7 @@
     "test": "pnpm exec tsc --noEmit",
     "build": "pnpm exec tsup",
     "dev": "NODE_ENV=develop pnpm exec tsx watch ./src/app/app.ts",
-    "prod": "NODE_ENV=production node ./dist/app/app.js"
+    "prod": "NODE_ENV=production node ./dist/app.js"
   },
   "keywords": [],
   "author": "Huazai",
