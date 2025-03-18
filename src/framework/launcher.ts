@@ -4,6 +4,7 @@ import { logger } from '@framework/module/logger.js';
 import { mainRouter } from '@framework/router/main.js';
 import Router from '@koa/router';
 import fs from 'fs';
+import http from 'http';
 import https from 'https';
 import Koa, { ParameterizedContext } from 'koa';
 import { env } from 'process';
@@ -11,20 +12,19 @@ import { env } from 'process';
 const hostname = env.HOST as string;
 const port = parseInt(env.PORT as string);
 
-const _app = new Koa<_BASEState, _BASEContext>();
-_app.proxy = true;
-
 const framework_middlewares = [
     'framework/init-request',
     'framework/http-base-auth',
 ];
 
+const _app = new Koa<_BASEState, _BASEContext>();
+_app.proxy = true;
+
 class Launcher {
+    public server: http.Server | https.Server | undefined;
     public mainRouter: Router<_BASEState, _BASEContext> = mainRouter;
     public app: Koa<_BASEState, _BASEContext> = _app;
-    public __construct() {
-    }
-    public async run() {
+    public init() {
         this.app.use(initRequest)
             .use(mainRouter.routes())
             .use(mainRouter.allowedMethods())
@@ -49,19 +49,27 @@ class Launcher {
                     logger.error(`‼️ Global ️Error Event: ${err.toString().trim()}`);
                 }
             });
-
+        return this;
+    }
+    public listen(listeningListener?: () => void) {
         // https or http
         if (JSON.parse(env.SSL || 'false')) {
             const options = {
                 key: fs.readFileSync(env.SSL_KEY as string),
                 cert: fs.readFileSync(env.SSL_CERT as string),
             };
-            https.createServer(options, this.app.callback()).listen(port, hostname, () => {
+            this.server = https.createServer(options, this.app.callback()).listen(port, hostname, () => {
                 logger.info(`HTTPS server is running on https://${hostname}:${port}`, { file: 'framework' });
+                if (listeningListener) {
+                    listeningListener();
+                }
             });
         } else {
-            this.app.listen(port, hostname, () => {
+            this.server = this.app.listen(port, hostname, () => {
                 logger.info(`HTTP server is running on http://${hostname}:${port}`, { file: 'framework' });
+                if (listeningListener) {
+                    listeningListener();
+                }
             });
         }
     }

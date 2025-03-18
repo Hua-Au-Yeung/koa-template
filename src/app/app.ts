@@ -5,5 +5,5 @@ import { apiRouter } from '@app/middleware/api.js';
 
 (async () => {
     launcher.mainRouter.use('/api', apiRouter.routes(), apiRouter.allowedMethods());
-    await launcher.run();
+    launcher.init().listen();
 })();
