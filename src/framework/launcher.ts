@@ -30,12 +30,11 @@ class Launcher {
             .use(mainRouter.allowedMethods())
             .on('error', (err, ctx: ParameterizedContext<_BASEState, _BASEContext>) => {
                 if (ctx) {
-                    const logMeta = {
+                    const logMeta: Record<any, any> = {
                         requestId: ctx.state.requestId,
                         ip: ctx.ip,
                     };
                     if (framework_middlewares.includes(ctx.state.currentMiddleware)) {
-                        // @ts-ignore
                         logMeta['file'] = 'framework';
                     }
 
