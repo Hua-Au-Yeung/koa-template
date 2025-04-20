@@ -6,7 +6,7 @@ import Router from '@koa/router';
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import Koa, { ParameterizedContext } from 'koa';
+import Koa, { DefaultContext, DefaultState, Middleware, ParameterizedContext } from 'koa';
 import { env } from 'process';
 
 const hostname = env.HOST as string;
@@ -24,8 +24,27 @@ class Launcher {
     public server: http.Server | https.Server | undefined;
     public mainRouter: Router<_BASEState, _BASEContext> = mainRouter;
     public app: Koa<_BASEState, _BASEContext> = _app;
-    public init() {
-        this.app.use(initRequest)
+    private middlewares: Middleware[] = [];
+
+    public constructor(options: LauncherOptions) {
+        if (options.url_prefix) {
+            this.mainRouter.prefix(options.url_prefix);
+        }
+    }
+
+    public addRouter(...args: any[]) {
+        this.mainRouter.use(...args);
+        return this;
+    }
+
+    public useMiddlewares() {
+        this.app.use(initRequest);
+
+        this.middlewares.forEach(middleware => {
+            this.app.use(middleware);
+        });
+
+        this.app
             .use(mainRouter.routes())
             .use(mainRouter.allowedMethods())
             .on('error', (err, ctx: ParameterizedContext<_BASEState, _BASEContext>) => {
@@ -50,7 +69,7 @@ class Launcher {
             });
         return this;
     }
-    public listen(listeningListener?: () => void) {
+    public serverListen(listeningListener?: () => void) {
         // https or http
         if (JSON.parse(env.SSL || 'false')) {
             const options = {
@@ -72,8 +91,11 @@ class Launcher {
             });
         }
     }
+
+    public addMiddleware(middleware: Middleware) {
+        this.middlewares.push(middleware);
+        return this;
+    }
 }
 
-const launcher = new Launcher();
-
-export default launcher;
+export default Launcher;

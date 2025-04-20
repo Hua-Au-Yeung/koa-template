@@ -14,5 +14,9 @@ declare global {
     }
     interface _BASEContext extends DefaultContext {
     }
+
+    interface LauncherOptions {
+        url_prefix?: string;
+    }
 }
 export {};
