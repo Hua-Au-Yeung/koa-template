@@ -17,6 +17,7 @@ declare global {
 
     interface LauncherOptions {
         url_prefix?: string;
+        proxy?: boolean;
     }
 }
 export {};

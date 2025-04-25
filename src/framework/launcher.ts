@@ -1,7 +1,7 @@
 import '@framework/init';
 import { initRequest } from '@framework/middleware/init-request.js';
 import { logger } from '@framework/module/logger.js';
-import { mainRouter } from '@framework/router/main.js';
+import { mainRouter as _mainRouter } from '@framework/router/main.js';
 import Router from '@koa/router';
 import fs from 'fs';
 import http from 'http';
@@ -17,16 +17,16 @@ const framework_middlewares = [
     'framework/http-base-auth',
 ];
 
-const _app = new Koa<_BASEState, _BASEContext>();
-_app.proxy = true;
-
 class Launcher<StateT extends _BASEState, CotextT extends _BASEContext> {
     public server: http.Server | https.Server | undefined;
-    public mainRouter: Router<_BASEState, _BASEContext> = mainRouter;
-    public app: Koa<_BASEState, _BASEContext> = _app;
+    public app: Koa<StateT, CotextT> = new Koa<StateT, CotextT>();
+    public mainRouter: Router<_BASEState, _BASEContext> = _mainRouter;
     private middlewares: Middleware<StateT, CotextT>[] = [];
 
     public constructor(options: LauncherOptions) {
+        if (options.proxy) {
+            this.app.proxy = options.proxy;
+        }
         if (options.url_prefix) {
             this.mainRouter.prefix(options.url_prefix);
         }
@@ -45,8 +45,8 @@ class Launcher<StateT extends _BASEState, CotextT extends _BASEContext> {
         });
 
         this.app
-            .use(mainRouter.routes())
-            .use(mainRouter.allowedMethods())
+            .use(this.mainRouter.routes())
+            .use(this.mainRouter.allowedMethods())
             .on('error', (err, ctx: ParameterizedContext<StateT, CotextT>) => {
                 if (ctx) {
                     const logMeta: Record<any, any> = {
