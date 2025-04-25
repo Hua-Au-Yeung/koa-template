@@ -15,22 +15,19 @@ export const initRequest = async (ctx: ParameterizedContext<_BASEState, _BASECon
     } catch (err) {
         let error = err;
         if (typeof err === 'object' && err !== null && 'status' in err && 'message' in err) {
-            // ctx.throw(code, ...)
             let error = err as _KoaError;
             ctx.status = error.status || 500;
             if (JSON.parse(env.DEBUG || 'false')) {
                 error.expose = true;
             }
 
-            if (error.expose) {
+            if (error.expose && ctx.body === undefined) {
                 ctx.body = error.message;
             }
 
-            // 401
-            if (error.status == 401) {
-                ctx.status = 401;
+            // 401 force Basic realm
+            if (ctx.status == 401) {
                 ctx.set('WWW-Authenticate', 'Basic realm="Protected Area"');
-                ctx.body = 'Authentication required';
             }
         } else {
             ctx.status = 500;
@@ -40,9 +37,15 @@ export const initRequest = async (ctx: ParameterizedContext<_BASEState, _BASECon
                 ctx.body = `500 Internal Server Error, ID:${ctx.state.requestId}\n`;
             }
         }
-        ctx.app.emit('error', error, ctx); // not throw just emit Koa error event
+        if (typeof err === 'object' && err !== null && 'status' in err) {
+            let error = err as _KoaError;
+            if (error.status >= 500) {
+                ctx.app.emit('error', error, ctx);
+            }
+        } else {
+            ctx.app.emit('error', error, ctx);
+        }
     }
-    // no try above no running below
 
     let logLevel: string;
     switch (ctx.response.status.toString().substring(0, 1)) {

@@ -6,7 +6,7 @@ import Router from '@koa/router';
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import Koa, { DefaultContext, DefaultState, Middleware, ParameterizedContext } from 'koa';
+import Koa, { Middleware, ParameterizedContext } from 'koa';
 import { env } from 'process';
 
 const hostname = env.HOST as string;
@@ -20,11 +20,11 @@ const framework_middlewares = [
 const _app = new Koa<_BASEState, _BASEContext>();
 _app.proxy = true;
 
-class Launcher {
+class Launcher<StateT extends _BASEState, CotextT extends _BASEContext> {
     public server: http.Server | https.Server | undefined;
     public mainRouter: Router<_BASEState, _BASEContext> = mainRouter;
     public app: Koa<_BASEState, _BASEContext> = _app;
-    private middlewares: Middleware[] = [];
+    private middlewares: Middleware<StateT, CotextT>[] = [];
 
     public constructor(options: LauncherOptions) {
         if (options.url_prefix) {
@@ -47,7 +47,7 @@ class Launcher {
         this.app
             .use(mainRouter.routes())
             .use(mainRouter.allowedMethods())
-            .on('error', (err, ctx: ParameterizedContext<_BASEState, _BASEContext>) => {
+            .on('error', (err, ctx: ParameterizedContext<StateT, CotextT>) => {
                 if (ctx) {
                     const logMeta: Record<any, any> = {
                         requestId: ctx.state.requestId,
@@ -92,7 +92,7 @@ class Launcher {
         }
     }
 
-    public addMiddleware(middleware: Middleware) {
+    public addMiddleware(middleware: Middleware<StateT, CotextT>) {
         this.middlewares.push(middleware);
         return this;
     }
