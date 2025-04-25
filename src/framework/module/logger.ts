@@ -4,7 +4,6 @@ import { env } from 'process';
 import winston from 'winston';
 import { createLogger, format, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import SentryTransport from 'winston-transport-sentry-node';
 
 const { combine, timestamp, json, errors } = format;
 export const LOG_DIR = `${path.resolve()}/log`;
@@ -65,11 +64,11 @@ export const logger: winston.Logger = createLogger({
     ],
 });
 
-if (env.NODE_ENV !== 'production') {
-    if (JSON.parse(env.DEBUG || 'false')) {
-        logger.exceptions.handle(new transports.File({ filename: `${LOG_DIR}/exception.log` }));
-        logger.rejections.handle(new transports.File({ filename: `${LOG_DIR}/rejections.log` }));
-    }
+if (JSON.parse(env.DEBUG || 'false')) {
+    // if (JSON.parse(env.DEBUG || 'false')) {
+    logger.exceptions.handle(new transports.File({ filename: `${LOG_DIR}/exception.log` }));
+    logger.rejections.handle(new transports.File({ filename: `${LOG_DIR}/rejections.log` }));
+    // }
     logger.add(
         new transports.Console({
             level: env.LOG_LEVEL || 'debug',
