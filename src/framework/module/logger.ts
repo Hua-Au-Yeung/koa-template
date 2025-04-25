@@ -37,7 +37,7 @@ export const logger: winston.Logger = createLogger({
         }),
         new DailyRotateFile({
             filename: `${LOG_DIR}/all-combined-%DATE%.log`,
-            datePattern: 'YYYY-w',
+            datePattern: 'YYYY-MM-DD',
             zippedArchive: true,
             maxSize: '20m',
             maxFiles: '30d',
