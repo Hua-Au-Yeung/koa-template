@@ -14,6 +14,8 @@ export const initRequest = async (ctx: ParameterizedContext<_BASEState, _BASECon
         await next();
     } catch (err) {
         let error = err;
+
+        // for http
         if (typeof err === 'object' && err !== null && 'status' in err && 'message' in err) {
             let error = err as _KoaError;
             ctx.status = error.status || 500;
@@ -32,11 +34,13 @@ export const initRequest = async (ctx: ParameterizedContext<_BASEState, _BASECon
         } else {
             ctx.status = 500;
             if (JSON.parse(env.DEBUG || 'false')) {
-                ctx.body = err;
+                ctx.body = typeof err === 'object' ? err?.toString() + '\n' : err;
             } else {
                 ctx.body = `500 Internal Server Error, ID:${ctx.state.requestId}\n`;
             }
         }
+
+        // for error event
         if (typeof err === 'object' && err !== null && 'status' in err) {
             let error = err as _KoaError;
             if (error.status >= 500) {
